@@ -1,0 +1,20 @@
+{
+    "$schema": "http://json.schemastore.org/template",
+    "author": "Sergei Zalygin",
+    "classifications": [
+        "Web",
+        "Clean Architecture Project",
+        "API",
+        "Microservice"
+    ],
+    "identity": "zalsergey.cleanarchitecture.template",
+    "name": "Clean Architecture Project by Sergei Kamianetskii",
+    "description": "Микросервис с Clean Architecture. Author: Sergei Zalygin",
+    "shortName": "Capi",
+    "sourceName": "Capi",
+    "preferNameDirectory": true,
+    "tags": {
+        "language": "C#",
+        "type": "project"
+    }
+}

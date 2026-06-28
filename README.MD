@@ -1,485 +1,100 @@
-# Clean Architecture Template
+# 🏗️ .NET Clean Architecture Template
 
-На этом этапе мы создаем не сам микросервис, а **шаблон проекта** для команды `dotnet new`.
+Готовый к использованию шаблон для создания микросервисов на .NET с архитектурой Clean Architecture.
 
-Идея в том, чтобы один раз подготовить стандартную структуру Clean Architecture, а потом быстро создавать новые микросервисы одной командой.
+### Sergey Zalygin
 
-## Общая идея
+**👨‍💻 GitHub:** [@Azirit](https://github.com/Azirit)
 
-Обычно при создании нового микросервиса нужно вручную выполнять много повторяющихся шагов:
+## 📋 Что создаёт шаблон
+
+При использовании команды `dotnet new Capi -n MyProject` создаётся следующая структура:
+
+```
+MyProject/
+├── README.md                 # Инструкции по проекту
+├── MyProject.API/            # Слой Web API
+├── MyProject.Application/    # Бизнес-логика
+├── MyProject.Domain/         # Доменные модели
+└── MyProject.Infrastructure/ # Данные и внешние сервисы
+```
+
+## 🚀 Быстрый старт
+
+### 1. Добавить источник GitHub Packages
+
+Создайте **[Personal Access Token](https://github.com/settings/tokens/new)** на GitHub с правами `read:packages` и выполните:
 
 ```bash
-dotnet new sln
-dotnet new webapi
-dotnet new classlib
-dotnet new classlib
-dotnet new classlib
-dotnet sln add ...
-dotnet add reference ...
+dotnet nuget add source https://nuget.pkg.github.com/Azirit/index.json \
+  --name github-azirit \
+  --username Azirit \
+  --password <YOUR_PERSONAL_ACCESS_TOKEN> \
+  --store-password-in-clear-text
 ```
 
-Также нужно каждый раз настраивать:
-
-* слои проекта;
-* зависимости между слоями;
-* `DependencyInjection`;
-* `Swagger`;
-* `GlobalUsings`;
-* конфигурационные файлы;
-* структуру папок.
-
-Чтобы не повторять эту работу для каждого нового микросервиса, мы создаем собственный шаблон.
-
-После установки шаблона новый сервис можно будет создать так:
+### 2. Установить шаблон
 
 ```bash
-dotnet new Capi -n Catalog
+dotnet new install zalsergey.cleanarchitecture.template
 ```
 
-В результате появится готовая структура:
-
-```text
-Catalog/
-├── Catalog.API
-├── Catalog.Application
-├── Catalog.Domain
-├── Catalog.Infrastructure
-└── Catalog.sln
-```
-
-## Текущая структура шаблона
-
-Проект шаблона устроен примерно так:
-
-```text
-clean-arch-tmp/
-├── Template.csproj
-├── README.md
-└── working/
-    └── content/
-        └── Capi/
-            ├── Catalog.API/
-            ├── Catalog.Application/
-            ├── Catalog.Domain/
-            ├── Catalog.Infrastructure/
-            └── SomeProject.sln
-```
-
-## Роль `Template.csproj`
-
-Файл `Template.csproj` описывает NuGet-пакет шаблона.
-
-Главная настройка:
-
-```xml
-<PackageType>Template</PackageType>
-```
-
-Она говорит .NET CLI, что это не обычная библиотека или приложение, а именно шаблон для команды `dotnet new`.
-
-Также важна настройка:
-
-```xml
-<Content Include="working\content\**"
-         Exclude="working\content\**\bin\**;working\content\**\obj\**" />
-```
-
-Она указывает, что содержимое папки `working/content` должно попасть внутрь NuGet-пакета шаблона.
-
-## Зачем нужна папка `working/content`
-
-Папка `working/content` содержит рабочую копию будущего проекта.
-
-Именно здесь мы подготавливаем структуру, которая потом будет копироваться при выполнении команды:
+### 3. Использовать шаблон
 
 ```bash
-dotnet new Capi -n Catalog
-```
-
-То есть `working/content/Capi` — это заготовка будущего микросервиса.
-
-## Что будет происходить дальше
-
-Постепенно в шаблон будут добавляться:
-
-* API слой;
-* Application слой;
-* Domain слой;
-* Infrastructure слой;
-* зависимости между проектами;
-* `DependencyInjection`;
-* `Swagger`;
-* `GlobalUsings`;
-* конфигурационные файлы;
-* Docker-настройки;
-* GitHub Actions;
-* документация.
-
-После этого шаблон можно будет установить и использовать для быстрого создания новых микросервисов с одинаковой архитектурной базой.
-
-## Зачем это полезно
-
-Такой подход помогает:
-
-* не копировать одну и ту же структуру вручную;
-* быстрее создавать новые микросервисы;
-* поддерживать единый стиль архитектуры;
-* уменьшить количество ошибок при инициализации проекта;
-* использовать одинаковую базовую конфигурацию во всех сервисах.
-
-По сути, мы создаем собственный стартовый набор для микросервисов на Clean Architecture.
-
-
-# Архитектура зависимостей (Project References)
-
-После создания проектов следующим шагом является настройка ссылок (`Project References`) между ними.
-
-На первый взгляд кажется, что это обычные команды:
-
-```bash
-dotnet add reference ../Capi.Domain
-dotnet add reference ../Capi.Application
-dotnet add reference ../Capi.Infrastructure
-```
-
-Но на самом деле именно на этом этапе формируется архитектура всего приложения.
-
-## Что такое Project Reference?
-
-Каждый проект (`.csproj`) компилируется независимо.
-
-Например:
-
-```text
-Capi.Domain
-```
-
-содержит класс
-
-```csharp
-public class Product
-{
-}
-```
-
-Если проект `Capi.Application` захочет использовать класс `Product`, то без ссылки он просто не сможет его увидеть.
-
-Компилятор сообщит, что такого типа не существует.
-
-После выполнения команды
-
-```bash
-dotnet add reference ../Capi.Domain
-```
-
-в файл `.csproj` автоматически добавится
-
-```xml
-<ProjectReference Include="..\Capi.Domain\Capi.Domain.csproj" />
-```
-
-Теперь проект `Application` может использовать все публичные классы из проекта `Domain`.
-
----
-
-# Почему ссылки именно такие?
-
-В Clean Architecture каждый слой имеет свою ответственность.
-
-## Domain
-
-`Domain` — центр приложения.
-
-Он содержит только бизнес-модель:
-
-* Product
-* Category
-* Order
-* Customer
-* Value Objects
-* Domain Events
-
-Domain не должен знать ничего о:
-
-* ASP.NET Core
-* PostgreSQL
-* Redis
-* RabbitMQ
-* Docker
-* HTTP
-
-Поэтому Domain вообще ни на кого не ссылается.
-
-```text
-Domain
-```
-
----
-
-## Application
-
-Application содержит бизнес-сценарии.
-
-Например:
-
-* Создать товар
-* Обновить товар
-* Получить список брендов
-* Найти категорию
-
-Для этого ему нужны доменные сущности.
-
-Поэтому:
-
-```text
-Application
-        │
-        ▼
-     Domain
-```
-
-Application знает Domain.
-
----
-
-## Infrastructure
-
-Infrastructure содержит техническую реализацию приложения.
-
-Например:
-
-* PostgreSQL
-* Marten
-* Redis
-* RabbitMQ
-* Работа с файлами
-* Email
-* Внешние API
-
-Очень важно понимать, что Infrastructure реализует контракты (интерфейсы), определённые в Application.
-
-Например:
-
-```csharp
-public interface IProductRepository
-{
-}
-```
-
-реализуется так:
-
-```csharp
-public class ProductRepository : IProductRepository
-{
-}
-```
-
-Поэтому:
-
-```text
-Infrastructure
-        │
-        ▼
-    Application
-```
-
-Infrastructure знает Application.
-
----
-
-## API
-
-API — это точка входа в приложение.
-
-Она:
-
-* принимает HTTP-запрос;
-* вызывает Application;
-* возвращает HTTP-ответ.
-
-Кроме этого, именно API собирает всё приложение через Dependency Injection.
-
-Поэтому API знает:
-
-* Application;
-* Infrastructure.
-
-```text
-API
-├────────► Application
-└────────► Infrastructure
-```
-
----
-
-# Итоговая схема зависимостей
-
-```text
-                 API
-                /   \
-               ▼     ▼
-      Application   Infrastructure
-             │
-             ▼
-          Domain
-```
-
-Важно обратить внимание, что стрелки показывают именно направление зависимости проекта.
-
-Например:
-
-```
-Application → Domain
-```
-
-означает, что Application может использовать классы Domain.
-
-Но обратная зависимость отсутствует.
-
-```
-Domain ✖ Application
-```
-
-Domain ничего не знает о существовании Application.
-
----
-
-# Почему нельзя сделать наоборот?
-
-Можно было бы сделать так:
-
-```text
-Application
-      │
-      ▼
-Infrastructure
-```
-
-Но тогда бизнес-логика стала бы зависеть от базы данных, Redis или других технологий.
-
-В Clean Architecture действует противоположный принцип:
-
-> Бизнес-логика должна быть независимой от технических деталей.
-
-Поэтому именно Infrastructure зависит от Application, а не наоборот.
-
----
-
-# Аналогия с рестораном
-
-Представим ресторан.
-
-## Domain
-
-Это книга рецептов.
-
-В ней написано:
-
-* как готовится пицца;
-* как готовится борщ;
-* как готовится десерт.
-
-В книге ничего не говорится про плиту, духовку или холодильник.
-
----
-
-## Application
-
-Это шеф-повар.
-
-Он знает:
-
-* когда готовить;
-* в какой последовательности;
-* какие блюда приготовить.
-
-Но ему всё равно, какая именно используется плита.
-
----
-
-## Infrastructure
-
-Это кухня.
-
-Здесь находятся:
-
-* плита;
-* холодильник;
-* духовка;
-* миксер.
-
-Это инструменты реализации.
-
----
-
-## API
-
-Это официант.
-
-Он:
-
-* принимает заказ;
-* передаёт его на кухню;
-* приносит готовое блюдо посетителю.
-
----
-
-# Вывод
-
-Команды `dotnet add reference` не просто добавляют ссылки между проектами.
-
-Они определяют архитектуру зависимостей всего приложения.
-
-Именно благодаря этим зависимостям каждый слой знает только то, что действительно должен знать, а бизнес-логика остаётся независимой от инфраструктуры и технологий.
-
-
-# GitHub Actions: автоматическая публикация шаблона
-
-Для автоматизации публикации используется GitHub Actions.
-
-GitHub Actions позволяет выполнять заранее описанные действия при наступлении определённых событий в репозитории.
-
-В данном проекте workflow выполняет автоматическую публикацию шаблона в GitHub Packages.
-
-## Когда запускается workflow?
-
-Workflow запускается в двух случаях:
-
-* при отправке тега, начинающегося с `v` (например `v1.0.0`);
-* вручную через кнопку **Run workflow** в разделе Actions.
-
-## Что происходит после запуска?
-
-После запуска GitHub автоматически:
-
-1. Создаёт временную виртуальную машину Ubuntu.
-2. Клонирует репозиторий.
-3. Устанавливает необходимую версию .NET SDK.
-4. Собирает проект шаблона.
-5. Создаёт NuGet-пакет (`.nupkg`).
-6. Добавляет GitHub Packages как источник NuGet.
-7. Загружает созданный пакет в GitHub Packages.
-8. Удаляет временную виртуальную машину.
-
-Весь процесс происходит автоматически без участия разработчика.
-
-## Почему это удобно?
-
-Вместо того чтобы вручную выполнять:
-
-```bash
+# Создать новый проект
+dotnet new Capi -n MyMicroservice
+
+# Перейти в проект и запустить
+cd MyMicroservice
 dotnet build
-dotnet pack
-dotnet nuget push
+dotnet run --project MyMicroservice.API
 ```
 
-достаточно создать новый тег:
+## 🛠️ Управление шаблоном
+
+- Проверить установку:
+  ```bash
+  dotnet new list
+  ```
+- Обновить шаблон:
+  ```bash
+  dotnet new install zalsergey.cleanarchitecture.template --force
+  ```
+- Удалить шаблон:
+  ```bash
+  dotnet new uninstall zalsergey.cleanarchitecture.template
+  ```
+- Удалить источник:
+  ```bash
+  dotnet nuget remove source github-azirit
+  ```
+
+## 📚 Дополнительные команды
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+# Посмотреть все источники NuGet
+dotnet nuget list source
 ```
 
-GitHub самостоятельно выполнит все необходимые действия и опубликует новую версию шаблона.
+## 📦 Публикация новых версий (для автора)
 
-Таким образом GitHub Actions выступает в роли системы непрерывной интеграции и доставки (CI/CD), автоматизируя рутинные операции и снижая вероятность ошибок при публикации.
+1. Внесите изменения в шаблон:
+   - Отредактируйте файлы в `working/content/Capi/`
+   - Обновите `PackageVersion` в `Template.csproj`
+2. Закоммитьте и создайте тег:
+
+   ```bash
+   git add .
+   git commit -m "Update template: добавлена новая функциональность"
+   git push origin master
+
+   # Создать и запушить тег версии
+   git tag v1.0.0
+   git push origin v1.0.0
+   ```
+
+3. Автоматическая публикация  
+   GitHub Actions автоматически опубликует пакет в GitHub Packages при создании тега.
+
+   Проверить публикацию: **Actions** → статус workflow, **Packages** → новая версия.

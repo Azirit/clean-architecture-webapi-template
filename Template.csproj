@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <PackageType>Template</PackageType>
-    <PackageVersion>1.0.1</PackageVersion>
-    <PackageId>iksergey.cleanarchitecture.template</PackageId>
+    <PackageVersion>1.0.2</PackageVersion>
+    <PackageId>zalsergey.cleanarchitecture.template</PackageId>
     <Title>Clean Architecture Project Template</Title>
-    <Authors>Sergei Kamianetskii</Authors>
+    <Authors>Sergei Zalygin</Authors>
     <Description>Clean Architecture template for microservices with API, Application, Core and Infrastructure layers</Description>
     <PackageTags>dotnet-new;templates;cleanarchitecture;webapi;microservice</PackageTags>
     <TargetFramework>net10.0</TargetFramework>

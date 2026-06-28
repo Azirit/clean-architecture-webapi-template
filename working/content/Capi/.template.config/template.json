@@ -8,7 +8,7 @@
         "Microservice"
     ],
     "identity": "zalsergey.cleanarchitecture.template",
-    "name": "Clean Architecture Project by Sergei Kamianetskii",
+    "name": "Clean Architecture Project by Sergey Zalygin",
     "description": "Микросервис с Clean Architecture. Author: Sergei Zalygin",
     "shortName": "Capi",
     "sourceName": "Capi",

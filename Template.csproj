@@ -16,7 +16,7 @@
     <PackageLicenseExpression>empty</PackageLicenseExpression>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="working/content/**" Exclude="working/content/**/bin/**;working/content/**/obj/**" />
-    <Compile Remove="**\*" />
+    <Content Include="content/**" Exclude="content/**/bin/**;content/**/obj/**" />
+    <Compile Remove="**/*" />
   </ItemGroup>
 </Project>
